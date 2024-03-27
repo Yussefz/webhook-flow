@@ -1,0 +1,24 @@
+{
+  "_id": "6478cf4ba947ac3133e80b17",
+  "name": "fail",
+  "description": "youssef.zouhairi@celigo.com",
+  "_connectionId": "5c9e3fcab6c32736c8eaf713",
+  "distributed": true,
+  "apiIdentifier": "i2c5aab643",
+  "ignoreExisting": false,
+  "ignoreMissing": false,
+  "oneToMany": false,
+  "lookups": [],
+  "netsuite_da": {
+    "useSS2Restlets": false,
+    "restletVersion": "suitebundle",
+    "operation": "add",
+    "recordType": "deposit",
+    "lookups": [],
+    "mapping": {
+      "fields": [],
+      "lists": []
+    }
+  },
+  "adaptorType": "NetSuiteDistributedImport"
+}

@@ -1,0 +1,33 @@
+{
+  "_id": "640761200715354ec7a25975",
+  "name": "Youssef Tests",
+  "description": "test",
+  "install": [],
+  "installSteps": [
+    {
+      "name": "expensify youssef test",
+      "completed": true,
+      "type": "connection",
+      "sourceConnection": {
+        "type": "http",
+        "name": "expensify youssef test",
+        "http": {
+          "formType": "http"
+        }
+      }
+    },
+    {
+      "name": "Copy resources now from template zip",
+      "completed": true,
+      "type": "template_zip"
+    }
+  ],
+  "uninstallSteps": [],
+  "changeEditionSteps": [],
+  "flowGroupings": [
+    {
+      "name": "Custom HTTP",
+      "_id": "64864a27a3dc6a7163f38661"
+    }
+  ]
+}

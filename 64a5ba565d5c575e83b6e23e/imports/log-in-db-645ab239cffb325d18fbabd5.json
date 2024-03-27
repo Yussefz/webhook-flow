@@ -1,0 +1,34 @@
+{
+  "_id": "645ab239cffb325d18fbabd5",
+  "name": "log in db",
+  "description": "youssef.zouhairi@celigo.com",
+  "_connectionId": "645ab1c5aa00dc609616ee86",
+  "apiIdentifier": "i8f108ae1e",
+  "ignoreExisting": false,
+  "ignoreMissing": false,
+  "oneToMany": false,
+  "http": {
+    "relativeURI": [
+      "/rest/logdb"
+    ],
+    "method": [
+      "POST"
+    ],
+    "body": [
+      "{\"json_data\" : \"{{jsonSerialize this.record}}\",\n\"data_from\": \"Integrator.IO\",\n\"time\" : \"{{timestamp HH:MM:SS}}\"\n}"
+    ],
+    "batchSize": 1,
+    "sendPostMappedData": true,
+    "formType": "http"
+  },
+  "filter": {
+    "type": "expression",
+    "expression": {
+      "rules": [],
+      "version": "1"
+    },
+    "rules": [],
+    "version": "1"
+  },
+  "adaptorType": "HTTPImport"
+}

@@ -1,0 +1,11 @@
+{
+  "_id": "64a5ba5500751c4e00b7c601",
+  "name": "Get JSON data",
+  "type": "webhook",
+  "webhook": {
+    "provider": "custom",
+    "verify": "basic",
+    "username": "youssef"
+  },
+  "adaptorType": "WebhookExport"
+}

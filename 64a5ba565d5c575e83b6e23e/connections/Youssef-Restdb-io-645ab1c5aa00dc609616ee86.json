@@ -1,0 +1,23 @@
+{
+  "_id": "645ab1c5aa00dc609616ee86",
+  "type": "http",
+  "name": "Youssef Restdb.io",
+  "http": {
+    "formType": "http",
+    "mediaType": "json",
+    "baseURI": "https://youssef-b985.restdb.io",
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "application/json"
+      },
+      {
+        "name": "x-apikey",
+        "value": "b5f930788559205ecf390509819121427c284"
+      }
+    ],
+    "auth": {
+      "type": "custom"
+    }
+  }
+}

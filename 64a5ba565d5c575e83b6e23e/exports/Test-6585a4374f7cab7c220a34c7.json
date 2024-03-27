@@ -1,0 +1,9 @@
+{
+  "_id": "6585a4374f7cab7c220a34c7",
+  "name": "Test",
+  "type": "webhook",
+  "webhook": {
+    "provider": "integrator-extension"
+  },
+  "adaptorType": "WebhookExport"
+}
