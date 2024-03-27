@@ -16,7 +16,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Zip Deploy Folder
       run: |
-        zip -r deploy.zip ./64a5ba565d5c575e83b6e23e
+        cd 64a5ba565d5c575e83b6e23e
+        zip -r ../deploy.zip .
     - name: Upload Zip as Artifact
       uses: actions/upload-artifact@v2
       with:
