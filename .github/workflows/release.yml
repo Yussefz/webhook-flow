@@ -1,5 +1,3 @@
-name: Create Release and Zip Deploy Folder
-
 on:
   push:
     branches:
@@ -8,7 +6,7 @@ on:
 permissions:
   contents: write
   issues: write
-
+  
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -16,17 +14,13 @@ jobs:
     - uses: actions/checkout@v2
     - name: Zip Deploy Folder
       run: |
-        TIMESTAMP=$(date +"%m%d%Y%H%M")
-        ZIP_NAME="deploy-${TIMESTAMP}.zip"  # Correctly capture the dynamic zip name
         cd 64a5ba565d5c575e83b6e23e
-        zip -r ../$ZIP_NAME ./*
-        echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
-        cd ..
-    - name: Upload Zip as Artifact  # Use the dynamic zip name for the artifact path
+        zip -r ../deploy.zip .
+    - name: Upload Zip as Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: deploy-package  # Keep the artifact name consistent
-        path: ${{ env.ZIP_NAME }}  # Use the dynamic ZIP_NAME environment variable
+        name: deploy
+        path: deploy.zip
 
   release:
     needs: prepare
@@ -36,7 +30,7 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: deploy-package  # Ensure this matches the name used in the upload step
+        name: deploy
     - name: Create Release
       run: |
         RESPONSE=$(curl -X POST \
@@ -51,14 +45,11 @@ jobs:
     - name: Upload Release Asset
       run: |
         echo "Using UPLOAD_URL: $UPLOAD_URL"
-        ZIP_PATH="${{ github.workspace }}/${{ env.ZIP_NAME }}"
-        echo "Uploading file at $ZIP_PATH"
         curl -X POST \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           -H "Content-Type: application/zip" \
-          --data-binary "@${ZIP_PATH}" \
-          "${UPLOAD_URL}?name=$(basename $ZIP_PATH)"
+          --data-binary @deploy.zip \
+          "${UPLOAD_URL}?name=$(basename ./deploy.zip)"
       env:
         UPLOAD_URL: ${{ env.UPLOAD_URL }}
-
