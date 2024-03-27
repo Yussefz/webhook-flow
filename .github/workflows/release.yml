@@ -51,11 +51,14 @@ jobs:
     - name: Upload Release Asset
       run: |
         echo "Using UPLOAD_URL: $UPLOAD_URL"
+        ZIP_PATH="${{ github.workspace }}/${{ env.ZIP_NAME }}"
+        echo "Uploading file at $ZIP_PATH"
         curl -X POST \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           -H "Content-Type: application/zip" \
-          --data-binary @${{ env.ZIP_NAME }} \  # Use the ZIP_NAME variable to reference the correct file
-          "$UPLOAD_URL?name=${{ env.ZIP_NAME }}"  # Use the dynamic name in the query as well
+          --data-binary "@${ZIP_PATH}" \
+          "${UPLOAD_URL}?name=$(basename $ZIP_PATH)"
       env:
         UPLOAD_URL: ${{ env.UPLOAD_URL }}
+
