@@ -1,4 +1,4 @@
-name: Create Release and Zip Deploy Folder
+name: Create Release and Zip Deploy Folder 1
 
 on:
   push:
