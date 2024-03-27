@@ -17,16 +17,16 @@ jobs:
     - name: Zip Deploy Folder
       run: |
         TIMESTAMP=$(date +"%m%d%Y%H%M")
-        ZIP_NAME="deploy-${TIMESTAMP}.zip"
+        ZIP_NAME="deploy-${TIMESTAMP}.zip"  # Correctly capture the dynamic zip name
         cd 64a5ba565d5c575e83b6e23e
         zip -r ../$ZIP_NAME ./*
         echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
         cd ..
-    - name: Upload Zip as Artifact
+    - name: Upload Zip as Artifact  # Use the dynamic zip name for the artifact path
       uses: actions/upload-artifact@v2
       with:
-        name: deploy
-        path: deploy.zip
+        name: deploy-package  # Keep the artifact name consistent
+        path: ${{ env.ZIP_NAME }}  # Use the dynamic ZIP_NAME environment variable
 
   release:
     needs: prepare
@@ -36,7 +36,7 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: deploy
+        name: deploy-package  # Ensure this matches the name used in the upload step
     - name: Create Release
       run: |
         RESPONSE=$(curl -X POST \
@@ -44,7 +44,7 @@ jobs:
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/${{ github.repository }}/releases \
           -d "{\"tag_name\": \"${{ github.ref_name }}\", \"name\": \"Release ${{ github.ref_name }}\", \"body\": \"Release description here\", \"draft\": false, \"prerelease\": false}")
-         echo "$RESPONSE"
+        echo "$RESPONSE"
         UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
         echo "UPLOAD_URL=$UPLOAD_URL"
         echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
@@ -55,7 +55,7 @@ jobs:
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           -H "Content-Type: application/zip" \
-          --data-binary @deploy.zip \
-          "$UPLOAD_URL?name=$(basename ./deploy.zip)"
+          --data-binary @${{ env.ZIP_NAME }} \  # Use the ZIP_NAME variable to reference the correct file
+          "$UPLOAD_URL?name=${{ env.ZIP_NAME }}"  # Use the dynamic name in the query as well
       env:
         UPLOAD_URL: ${{ env.UPLOAD_URL }}
