@@ -16,8 +16,12 @@ jobs:
     - uses: actions/checkout@v2
     - name: Zip Deploy Folder
       run: |
+        TIMESTAMP=$(date +"%m%d%Y%H%M")
+        ZIP_NAME="deploy-${TIMESTAMP}.zip"
         cd 64a5ba565d5c575e83b6e23e
-        zip -r ../deploy.zip .
+        zip -r ../$ZIP_NAME ./*
+        echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+        cd ..
     - name: Upload Zip as Artifact
       uses: actions/upload-artifact@v2
       with:
