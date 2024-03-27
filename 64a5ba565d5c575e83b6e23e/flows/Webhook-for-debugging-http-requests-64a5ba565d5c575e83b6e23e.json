@@ -22,6 +22,14 @@
     },
     {
       "type": "import",
+      "_importId": "6478cf76e582fc3caf5b6e65",
+      "responseMapping": {
+        "fields": [],
+        "lists": []
+      }
+    },
+    {
+      "type": "import",
       "_importId": "645ab239cffb325d18fbabd5",
       "responseMapping": {
         "fields": [],

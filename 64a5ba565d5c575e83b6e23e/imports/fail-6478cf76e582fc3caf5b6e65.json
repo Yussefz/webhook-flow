@@ -1,0 +1,29 @@
+{
+  "_id": "6478cf76e582fc3caf5b6e65",
+  "name": "fail",
+  "_connectionId": "5c9e3fcab6c32736c8eaf713",
+  "distributed": true,
+  "apiIdentifier": "i2d01489f0",
+  "hooks": {
+    "preMap": {
+      "function": "test",
+      "_scriptId": "6478cf75e582fc3caf5b6e55"
+    }
+  },
+  "ignoreExisting": false,
+  "ignoreMissing": false,
+  "oneToMany": false,
+  "lookups": [],
+  "netsuite_da": {
+    "useSS2Restlets": false,
+    "restletVersion": "suitebundle",
+    "operation": "add",
+    "recordType": "account",
+    "lookups": [],
+    "mapping": {
+      "fields": [],
+      "lists": []
+    }
+  },
+  "adaptorType": "NetSuiteDistributedImport"
+}
