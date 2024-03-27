@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - master
+
 permissions:
   contents: write
   issues: write
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -31,21 +33,19 @@ jobs:
       with:
         name: deploy
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
+      run: |
+        RESPONSE=$(curl -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/releases \
+          -d "{\"tag_name\": \"${{ github.ref_name }}\", \"name\": \"Release ${{ github.ref_name }}\", \"body\": \"Release description here\", \"draft\": false, \"prerelease\": false}")
+        UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
+        echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
     - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./deploy.zip
-        asset_name: deploy.zip
-        asset_content_type: application/zip
+      run: |
+        curl -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Content-Type: application/zip" \
+          --data-binary @deploy.zip \
+          "$UPLOAD_URL?name=$(basename ./deploy.zip)"
