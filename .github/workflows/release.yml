@@ -11,15 +11,17 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Zip Deploy Folder and Upload as Artifact 
-      run: |
-        TIMESTAMP=$(date +"%m%d%Y%H%M")
-        ZIP_NAME="deploy-${TIMESTAMP}.zip"
-        cd 64a5ba565d5c575e83b6e23e
-        zip -r ../$ZIP_NAME ./*
-        cd ..
-        echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+      - uses: actions/checkout@v2
+      
+      - name: Zip Deploy Folder and Upload as Artifact 
+        run: |
+          TIMESTAMP=$(date +"%m%d%Y%H%M")
+          ZIP_NAME="deploy-${TIMESTAMP}.zip"
+          cd 64a5ba565d5c575e83b6e23e
+          zip -r ../$ZIP_NAME ./*
+          cd ..
+          echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+          
       - uses: actions/upload-artifact@v2
         with:
           name: deploy-package
@@ -29,30 +31,31 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Download Artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: deploy-package
-    - name: Create Release and Upload Asset
-      run: |
-        TIMESTAMP=$(date +"%Y%m%d%H%M%S")
-        TAG_NAME="${{ github.ref_name }}-$TIMESTAMP"
-        ZIP_NAME=$(ls *.zip)  # Directly find the zip file in the current directory
-        RESPONSE=$(curl -X POST \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/${{ github.repository }}/releases \
-          -d "{\"tag_name\": \"$TAG_NAME\", \"name\": \"Release $TAG_NAME\", \"body\": \"Release description here\", \"draft\": false, \"prerelease\": false}")
-        UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
-        echo "Uploading file $ZIP_NAME at $UPLOAD_URL"
-        if [[ -f "$ZIP_NAME" ]]; then
-          curl -X POST \
+      - uses: actions/checkout@v2
+      
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: deploy-package
+          
+      - name: Create Release and Upload Asset
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+          TAG_NAME="${{ github.ref_name }}-$TIMESTAMP"
+          ZIP_NAME=$(ls *.zip)  # Directly find the zip file in the current directory
+          RESPONSE=$(curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            -H "Content-Type: application/zip" \
-            --data-binary "@$ZIP_NAME" \
-            "${UPLOAD_URL}?name=$(basename $ZIP_NAME)"
-        else
-          echo "File $ZIP_NAME does not exist."
-        fi
+            https://api.github.com/repos/${{ github.repository }}/releases \
+            -d "{\"tag_name\": \"$TAG_NAME\", \"name\": \"Release $TAG_NAME\", \"body\": \"Release description here\", \"draft\": false, \"prerelease\": false}")
+          UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
+          echo "Uploading file $ZIP_NAME at $UPLOAD_URL"
+          if [[ -f "$ZIP_NAME" ]]; then
+            curl -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Content-Type: application/zip" \
+              --data-binary "@$ZIP_NAME" \
+              "${UPLOAD_URL}?name=$(basename $ZIP_NAME)"
+          else
+            echo "File $ZIP_NAME does not exist."
