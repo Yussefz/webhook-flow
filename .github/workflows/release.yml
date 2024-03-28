@@ -1,31 +1,20 @@
-on:
-  push:
-    branches:
-      - master
-
-permissions:
-  contents: write
-  issues: write
-
 jobs:
   prepare:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Zip Deploy Folder
+    - name: Zip Deploy Folder and Upload as Artifact
       run: |
         TIMESTAMP=$(date +"%m%d%Y%H%M")
-        ZIP_NAME="deploy-${TIMESTAMP}.zip"  # Correctly capture the dynamic zip name
+        ZIP_NAME="deploy-${TIMESTAMP}.zip"
         cd 64a5ba565d5c575e83b6e23e
         zip -r ../$ZIP_NAME ./*
-        echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
-        echo "ZIP_NAME=${ZIP_NAME}"
         cd ..
-    - name: Upload Zip as Artifact   # Use the dynamic zip name for the artifact path
-      uses: actions/upload-artifact@v2
-      with:
-        name: deploy-package  # Keep the artifact name consistent
-        path: ${{ env.ZIP_NAME }}  # Use the dynamic ZIP_NAME environment variable
+        echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
+      - uses: actions/upload-artifact@v2
+        with:
+          name: deploy-package
+          path: ${{ env.ZIP_NAME }}
 
   release:
     needs: prepare
@@ -35,35 +24,26 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: deploy-package  # Ensure this matches the name used in the upload step
-    - name: Create Release
+        name: deploy-package
+    - name: Create Release and Upload Asset
       run: |
-        TIMESTAMP=$(date +"%Y%m%d%H%M%S")  # Generate a timestamp
+        TIMESTAMP=$(date +"%Y%m%d%H%M%S")
         TAG_NAME="${{ github.ref_name }}-$TIMESTAMP"
+        ZIP_NAME=$(ls *.zip)  # Directly find the zip file in the current directory
         RESPONSE=$(curl -X POST \
           -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -H "Accept: application/vnd.github.v3+json" \
           https://api.github.com/repos/${{ github.repository }}/releases \
           -d "{\"tag_name\": \"$TAG_NAME\", \"name\": \"Release $TAG_NAME\", \"body\": \"Release description here\", \"draft\": false, \"prerelease\": false}")
-        echo "$RESPONSE"
         UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
-        echo "UPLOAD_URL=$UPLOAD_URL"
-        echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
-    - name: Upload Release Asset
-      run: |
-        echo "Using UPLOAD_URL: $UPLOAD_URL"
-        # Ensure this points to the correct path where your zip file is located
-        ZIP_PATH="${{ github.workspace }}/${{ env.ZIP_NAME }}"
-        echo "Uploading file at $ZIP_PATH"
-        if [ -f "$ZIP_PATH" ]; then
+        echo "Uploading file $ZIP_NAME at $UPLOAD_URL"
+        if [[ -f "$ZIP_NAME" ]]; then
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Content-Type: application/zip" \
-            --data-binary "@$ZIP_PATH" \
-            "${UPLOAD_URL}?name=$(basename $ZIP_PATH)"
+            --data-binary "@$ZIP_NAME" \
+            "${UPLOAD_URL}?name=$(basename $ZIP_NAME)"
         else
-          echo "File $ZIP_PATH does not exist."
+          echo "File $ZIP_NAME does not exist."
         fi
-      env:
-        UPLOAD_URL: ${{ env.UPLOAD_URL }}
