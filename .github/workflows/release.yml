@@ -17,7 +17,7 @@ jobs:
         TIMESTAMP=$(date +"%m%d%Y%H%M")
         ZIP_NAME="deploy-${TIMESTAMP}.zip"  # Correctly capture the dynamic zip name
         cd 64a5ba565d5c575e83b6e23e
-        zip -r ../$ZIP_NAME .
+        zip -r ../$ZIP_NAME ./*
         echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
         cd ..
     - name: Upload Zip as Artifact   # Use the dynamic zip name for the artifact path
