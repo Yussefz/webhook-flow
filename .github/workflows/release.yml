@@ -51,13 +51,18 @@ jobs:
     - name: Upload Release Asset
       run: |
         echo "Using UPLOAD_URL: $UPLOAD_URL"
+        # Ensure this points to the correct path where your zip file is located
         ZIP_PATH="${{ github.workspace }}/${{ env.ZIP_NAME }}"
         echo "Uploading file at $ZIP_PATH"
-        curl -X POST \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          -H "Content-Type: application/zip" \
-          --data-binary "@${ZIP_PATH}" \  
-          "${UPLOAD_URL}?name=$(basename $ZIP_PATH)"  
+        if [ -f "$ZIP_PATH" ]; then
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/zip" \
+            --data-binary "@$ZIP_PATH" \
+            "${UPLOAD_URL}?name=$(basename $ZIP_PATH)"
+        else
+          echo "File $ZIP_PATH does not exist."
+        fi
       env:
         UPLOAD_URL: ${{ env.UPLOAD_URL }}
