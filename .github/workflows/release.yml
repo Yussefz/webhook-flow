@@ -40,22 +40,30 @@ jobs:
           
       - name: Create Release and Upload Asset
         run: |
+          set -e
           TIMESTAMP=$(date +"%Y%m%d%H%M%S")
           TAG_NAME="${{ github.ref_name }}-$TIMESTAMP"
-          ZIP_NAME=$(ls *.zip)  # Directly find the zip file in the current directory
+          echo "Creating release with tag: $TAG_NAME"
           RESPONSE=$(curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/releases \
+            "https://api.github.com/repos/${{ github.repository }}/releases" \
             -d "{\"tag_name\": \"$TAG_NAME\", \"name\": \"Release $TAG_NAME\", \"body\": \"Release description here\", \"draft\": false, \"prerelease\": false}")
+          echo "Release creation response: $RESPONSE"
           UPLOAD_URL=$(echo $RESPONSE | jq -r .upload_url | sed 's/{?name,label}//')
-          echo "Uploading file $ZIP_NAME at $UPLOAD_URL"
+          echo "Resolved UPLOAD_URL: $UPLOAD_URL"
+          
+          ZIP_NAME=$(ls *.zip)  # Assuming only one zip file is present
+          echo "Identified ZIP_NAME as: $ZIP_NAME"
+          
           if [[ -f "$ZIP_NAME" ]]; then
+            echo "File $ZIP_NAME exists, proceeding with upload."
             curl -X POST \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github.v3+json" \
               -H "Content-Type: application/zip" \
               --data-binary "@$ZIP_NAME" \
-              "${UPLOAD_URL}?name=$(basename $ZIP_NAME)"
+              "${UPLOAD_URL}?name=$(basename "$ZIP_NAME")"
           else
-            echo "File $ZIP_NAME does not exist."
+            echo "File $ZIP_NAME does not exist, skipping upload."
+          fi
