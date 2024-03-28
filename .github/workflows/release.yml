@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Zip Deploy Folder and Upload as Artifact
+    - name: Zip Deploy Folder and Upload as Artifact 
       run: |
         TIMESTAMP=$(date +"%m%d%Y%H%M")
         ZIP_NAME="deploy-${TIMESTAMP}.zip"
