@@ -20,7 +20,7 @@ jobs:
         zip -r ../$ZIP_NAME ./*
         echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
         cd ..
-    - name: Upload Zip as Artifact  # Use the dynamic zip name for the artifact path
+    - name: Upload Zip as Artifact   # Use the dynamic zip name for the artifact path
       uses: actions/upload-artifact@v2
       with:
         name: deploy-package  # Keep the artifact name consistent
